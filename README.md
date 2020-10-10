@@ -1,7 +1,7 @@
 # COVID Statistics API for LU
 > Very unofficial, but uses the data provided by the university publicly
 
-To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/coronavirus/covid-19-statistics)
+To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/coronavirus/covid-19-statistics). The API is currently hosted at `https://lucovid.willfantom.dev`.
 
 This API exists only to allow for easier manipulation of the data.
 
