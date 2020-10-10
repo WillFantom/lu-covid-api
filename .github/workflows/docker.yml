@@ -1,0 +1,62 @@
+name: Docker Rolling
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  rolling-docker:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Extract Repo Owner
+        shell: bash
+        run: echo "##[set-output name=owner;]$(echo ${GITHUB_REPOSITORY%%/*} | tr '[:upper:]' '[:lower:]')"
+        id: extract_owner
+      -
+        name: Extract Branch Name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - 
+        name: Login to GH CRegistry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+      - 
+        name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Build and Push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: build/Dockerfile
+          platforms: linux/amd64,linux/arm/v8,linux/arm/v7
+          push: true
+          tags: |
+            ghcr.io/${{ steps.extract_owner.outputs.owner }}/lu-covid-api:latest
+            docker.io/${{ steps.extract_owner.outputs.owner }}/lu-covid-api:latest
+          no-cache: false
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.url=${{ github.event.repository.html_url }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
