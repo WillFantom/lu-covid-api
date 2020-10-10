@@ -39,6 +39,7 @@ func main() {
 	router.HandleFunc("/", redirect)
 	router.HandleFunc(apiBase+"today", api.CasesToday)
 	router.HandleFunc(apiBase+"summary", api.Summary)
+	router.HandleFunc(apiBase+"raw", api.Raw)
 	log.Debug("💬 running api...")
 	log.Fatal(http.ListenAndServe(":8080", router))
 

@@ -27,6 +27,23 @@ func CasesToday(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Raw(w http.ResponseWriter, r *http.Request) {
+	log.Debugln("✉️ getting rates today")
+	rates, err := rates.ForDateRange(rates.StartDate, time.Now())
+	if err != nil {
+		http.Error(w, "information reqest failed", 500)
+	} else if rates == nil {
+		http.Error(w, "todays information has not yet been published", 204)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		jsonData, err := json.Marshal(rates)
+		if err != nil {
+			http.Error(w, "data returned can not be marshalled", 500)
+		}
+		w.Write(jsonData)
+	}
+}
+
 func Summary(w http.ResponseWriter, r *http.Request) {
 	log.Debugln("✉️ getting summary")
 	rates, err := rates.ForDateRange(rates.StartDate, time.Now())
@@ -39,7 +56,7 @@ func Summary(w http.ResponseWriter, r *http.Request) {
 		var total, staff, students uint64
 		for _, rate := range *rates {
 			staff += (rate.Staff)
-			students += (rate.CampusStudents + rate.CityStudents)
+			students += (rate.Campus + rate.City)
 		}
 		total = students + staff
 		data := map[string]uint64{

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/willfantom/lu-covid-api/db"
 
 	"github.com/PuerkitoBio/goquery"
@@ -81,33 +80,28 @@ func WriteRates(updateExisting bool) error {
 // Today returns the given rates for the current day.
 // If these have not yet been provided, no error will be flagged,
 // yet rate will be nil.
-func Today() (*Rate, error) {
+func Today() (*db.Rate, error) {
 	rates, err := ForDateRange(time.Now(), time.Now())
 	if err != nil {
 		return nil, err
 	}
-	if len(*rates) != 1 {
-		return nil, nil
+	if rates != nil {
+		if len((*rates)) != 1 {
+			return nil, nil
+		}
+		return &(*rates)[0], nil
 	}
-	var rate Rate
-	if err := mapstructure.Decode((*rates)[0], &rate); err != nil {
-		return nil, err
-	}
-	return &rate, nil
+	return nil, nil
 }
 
 // ForDateRange returns the given rates a range of days.
-func ForDateRange(from time.Time, to time.Time) (*[]Rate, error) {
+func ForDateRange(from time.Time, to time.Time) (*[]db.Rate, error) {
 	rates, err := db.FetchRates(databasePath, from, to)
 	if err != nil {
 		return nil, err
 	}
-	if len(*rates) < 1 {
+	if len((*rates)) < 1 {
 		return nil, nil
 	}
-	var retRates []Rate
-	if err := mapstructure.Decode(*rates, &retRates); err != nil {
-		return nil, err
-	}
-	return &retRates, nil
+	return rates, nil
 }
