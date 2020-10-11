@@ -6,6 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/willfantom/lu-covid-api/db"
+
+	"github.com/willfantom/lu-covid-api/telegram"
+
 	"github.com/gorilla/mux"
 	"github.com/willfantom/lu-covid-api/api"
 
@@ -25,15 +29,16 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	if err := db.Init(); err != nil {
+		log.Fatalln("🆘 no database connection could be made")
+	}
+
 	justUpdate := flag.Bool("update-db", false, "just update the database and then exit")
 	flag.Parse()
 
 	log.Debugln("💬 initial scrape...")
-	if err := rates.Scrape(); err != nil {
+	if err := rates.Scrape(true, true); err != nil {
 		log.Fatalln("🆘 initial scrape failed!")
-	}
-	if err := rates.WriteRates(true); err != nil {
-		log.Fatalln("🆘 could not perm a database write for initial data")
 	}
 	log.Debugln("✅ scrape success")
 
@@ -44,12 +49,13 @@ func main() {
 
 	go fetch()
 
+	if token, exists := os.LookupEnv("TG_TOKEN"); exists {
+		go telegram.Init(token)
+	}
+
 	router := mux.NewRouter()
 	router.HandleFunc("/", redirect)
-	router.HandleFunc(apiBase+"today", api.CasesToday)
-	router.HandleFunc(apiBase+"day", api.CasesForDay)
-	router.HandleFunc(apiBase+"summary", api.Summary)
-	router.HandleFunc(apiBase+"raw", api.Raw)
+	api.API(router)
 	log.Debugln("💬 running api...")
 	log.Fatal(http.ListenAndServe(":8080", router))
 
@@ -61,8 +67,7 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 
 func fetch() {
 	for {
-		rates.Scrape()
-		rates.WriteRates(false)
+		rates.Scrape(true, false)
 		time.Sleep(time.Minute * 30)
 	}
 }
