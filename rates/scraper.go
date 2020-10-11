@@ -10,6 +10,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	log "github.com/sirupsen/logrus"
+	"github.com/willfantom/lu-covid-api/db"
 )
 
 const shortForm = "2006-Jan-2"
@@ -36,9 +37,9 @@ func getContent(endpoint string) (*ResponseContent, error) {
 	return &content, nil
 }
 
-func getRates(htmlContent *goquery.Document) ([]Rate, error) {
+func getRates(htmlContent *goquery.Document) ([]db.Rate, error) {
 
-	var rates []Rate
+	var rates []db.Rate
 
 	var rows []*goquery.Selection
 
@@ -55,7 +56,7 @@ func getRates(htmlContent *goquery.Document) ([]Rate, error) {
 		if cells.Length() != 4 {
 			return rates, fmt.Errorf("4 cells per row expected")
 		}
-		var rate Rate
+		var rate db.Rate
 		cell := cells.First()
 		for n := 0; n < cells.Length(); n++ {
 			text := strings.TrimSpace(cell.Text())
@@ -65,9 +66,9 @@ func getRates(htmlContent *goquery.Document) ([]Rate, error) {
 					rate.Date = parsedDate
 				}
 			} else if n == 1 {
-				rate.CampusStudents, _ = strconv.ParseUint(text, 10, 32)
+				rate.Campus, _ = strconv.ParseUint(text, 10, 32)
 			} else if n == 2 {
-				rate.CityStudents, _ = strconv.ParseUint(text, 10, 32)
+				rate.City, _ = strconv.ParseUint(text, 10, 32)
 			} else if n == 3 {
 				rate.Staff, _ = strconv.ParseUint(text, 10, 32)
 			}
