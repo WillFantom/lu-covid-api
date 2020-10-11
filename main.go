@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 	"os"
 	"time"
@@ -24,14 +25,22 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	log.Debug("💬 initial scrape...")
+	justUpdate := flag.Bool("update-db", false, "just update the database and then exit")
+	flag.Parse()
+
+	log.Debugln("💬 initial scrape...")
 	if err := rates.Scrape(); err != nil {
 		log.Fatalln("🆘 initial scrape failed!")
 	}
 	if err := rates.WriteRates(true); err != nil {
 		log.Fatalln("🆘 could not perm a database write for initial data")
 	}
-	log.Debug("✅ scrape success")
+	log.Debugln("✅ scrape success")
+
+	if *justUpdate {
+		log.Infoln("📁 database updated")
+		os.Exit(0)
+	}
 
 	go fetch()
 
@@ -40,7 +49,7 @@ func main() {
 	router.HandleFunc(apiBase+"today", api.CasesToday)
 	router.HandleFunc(apiBase+"summary", api.Summary)
 	router.HandleFunc(apiBase+"raw", api.Raw)
-	log.Debug("💬 running api...")
+	log.Debugln("💬 running api...")
 	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
