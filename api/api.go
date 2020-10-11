@@ -31,7 +31,7 @@ func today(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server encountered an issue", 500)
 		return
 	}
-	if !isTimeToday(rate.Date) {
+	if !IsTimeToday(rate.Date) {
 		http.Error(w, "the server does not yet have data for today", 204)
 		return
 	}
@@ -125,8 +125,8 @@ func totals(w http.ResponseWriter, r *http.Request) {
 
 func raw(w http.ResponseWriter, r *http.Request) {
 	log.Debugln("✉️ getting raw rates")
-	earilestDate, errA := getEarliestDate()
-	recentDate, errB := getRecentDate()
+	earilestDate, errA := GetEarliestDate()
+	recentDate, errB := GetRecentDate()
 	if errA != nil || errB != nil {
 		http.Error(w, "server encountered an issue", 500)
 		return

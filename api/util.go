@@ -11,7 +11,7 @@ import (
 
 const expectedFormat = "2006-Jan-2"
 
-func isTimeToday(t time.Time) bool {
+func IsTimeToday(t time.Time) bool {
 	if t.Year() == time.Now().Year() && t.YearDay() == time.Now().YearDay() {
 		return true
 	}
@@ -33,7 +33,7 @@ func dateFromQuery(values url.Values) (time.Time, error) {
 	return date, nil
 }
 
-func getEarliestDate() (time.Time, error) {
+func GetEarliestDate() (time.Time, error) {
 	earliest, err := db.Earliest()
 	if err != nil {
 		return time.Time{}, err
@@ -41,7 +41,7 @@ func getEarliestDate() (time.Time, error) {
 	return earliest.Date, nil
 }
 
-func getRecentDate() (time.Time, error) {
+func GetRecentDate() (time.Time, error) {
 	recent, err := db.MostRecent()
 	if err != nil {
 		return time.Time{}, err
