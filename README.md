@@ -5,6 +5,10 @@ To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/co
 
 This API exists only to allow for easier manipulation of the data.
 
+### ⚠️ Warning
+
+If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might be because you are using CloudFlare DNS.
+
 ### API
 
 - **Cases Today** [get]
