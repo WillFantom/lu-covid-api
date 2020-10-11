@@ -60,7 +60,7 @@ func AddRate(date time.Time, staff uint64, city uint64, campus uint64) error {
 		log.Errorln("⚠️ could not create add rate statement")
 		return err
 	}
-	_, err = arStatement.Exec(date, campus, city, staff)
+	_, err = arStatement.Exec(date.Format(time.RFC3339), campus, city, staff)
 	if err != nil {
 		log.Errorln("⚠️ failed to add rate")
 		return err

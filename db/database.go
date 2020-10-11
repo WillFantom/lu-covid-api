@@ -1,13 +1,17 @@
 package db
 
 import (
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3" //sqlite 3 driver
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	dbPath     string = "./database/cases.db"
+	dbDir      string = "./database"
+	dbFileName string = "cases.db"
+	dbPath     string = strings.Join([]string{dbDir, dbFileName}, "/")
 	connection *sqlx.DB
 )
 

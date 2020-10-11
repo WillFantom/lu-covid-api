@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	downloadURL      string = "https://github.com/WillFantom/lu-covid-api/blob/main/database/cases.db"
+	downloadURL      string = "https://github.com/WillFantom/lu-covid-api/blob/main/database/cases.db?raw=true"
 	ratesTableCreate string = `CREATE TABLE rates (
 		"id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
 		"date" date NOT NULL,
@@ -39,6 +39,7 @@ func downloadFromGitHub() error {
 	if response.StatusCode != 200 {
 		return errors.New("non-200 status code, download failed")
 	}
+	os.MkdirAll(dbDir, os.ModePerm)
 	dbFile, err := os.Create(dbPath)
 	if err != nil {
 		return err
@@ -48,11 +49,13 @@ func downloadFromGitHub() error {
 	if err != nil {
 		return err
 	}
+	log.Debugln("✅ downloaded database from github")
 	return nil
 }
 
 func createEmpty() error {
 	log.Debugln("💬 creating empty database")
+	os.MkdirAll(dbDir, os.ModePerm)
 	dbFile, err := os.Create(dbPath)
 	if err != nil {
 		log.Errorln("⚠️ could not create database file")
