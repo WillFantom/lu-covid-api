@@ -9,4 +9,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.4
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/sirupsen/logrus v1.7.0
+	gopkg.in/tucnak/telebot.v2 v2.3.4
 )

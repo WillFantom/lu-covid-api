@@ -1,7 +1,7 @@
 # COVID Statistics API for LU
 > Very unofficial, but uses the data provided by the university publicly
 
-To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/coronavirus/covid-19-statistics). The API is currently hosted at `https://lucovid.willfantom.dev`.
+To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/coronavirus/covid-19-statistics). The API is currently hosted at `https://lucovid.willfantom.dev`. The data can also be found through the telegram bot `@LU_Covid19_bot`.
 
 This API exists only to allow for easier manipulation of the data.
 
@@ -15,10 +15,26 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
 
   `/api/v1/today`
 
+  Telegram bot function: `/today`
+
   Will return:
   - `204` if today's data has not yet been published (or scraped)
   - `500` if this crappy code messed up
   - `200` with a json summary of the cases today if successful
+
+- **Most Recent Daily Numbers** [get]
+
+  `/api/v1/recent`
+
+  Telegram bot function: `/recent`
+
+  Will return:
+  - `204` if data has not yet been published (or scraped)
+  - `500` if this crappy code messed up
+  - `200` with a json summary of the cases for that day if successful, e.g.
+      ```json
+      {"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0}
+      ```
 
 - **Cases for Given Day** [get]
 
@@ -38,16 +54,22 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
       {"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0}
       ```
 
-- **Total Cases Summary** [get]
+- **Total Cases** [get]
 
-  `/api/v1/summary`
+  `/api/v1/totals`
 
   Will return:
   - `204` if data has not yet been published (or scraped)
   - `500` if this crappy code messed up
   - `200` with a json summary of the total cases if successful, e.g.
       ```json
-      {"Staff Cases":5,"Student Cases":117,"Total Cases":122}
+      {
+        "starting date": "Thu, 01 Oct 2020 00:00:00 UTC",
+        "ending date": "Thu, 08 Oct 2020 00:00:00 UTC",
+        "staff total": 5,
+        "student total": 117,
+        "total cases": 122
+      }
       ```
 
 - **Complete Raw** [get]
@@ -59,8 +81,8 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
   - `500` if this crappy code messed up
   - `200` with a json summary of the total cases as given in the table if successful, e.g.
       ```json
-      [  {"ID":1,"Date":"2020-10-01T00:00:00Z","Campus":1,"City":2,"Staff":0},
-         {"ID":2,"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0},
-         {"ID":3,"Date":"2020-10-03T00:00:00Z","Campus":3,"City":1,"Staff":0},
-         {"ID":4,"Date":"2020-10-04T00:00:00Z","Campus":4,"City":4,"Staff":0}  ]
+      [  {"Date":"2020-10-01T00:00:00Z","Campus":1,"City":2,"Staff":0},
+         {"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0},
+         {"Date":"2020-10-03T00:00:00Z","Campus":3,"City":1,"Staff":0},
+         {"Date":"2020-10-04T00:00:00Z","Campus":4,"City":4,"Staff":0}  ]
       ```
