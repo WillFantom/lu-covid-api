@@ -20,6 +20,24 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
   - `500` if this crappy code messed up
   - `200` with a json summary of the cases today if successful
 
+- **Cases for Given Day** [get]
+
+  `/api/v1/day`
+
+  Required Parameters:
+    - `day`: e.g. `02`
+    - `month`: e.g. `Oct`
+    - `year`: e.g. `2020`
+    > (example builds `October 2nd 2020`)
+
+  Will return:
+  - `204` if data has not yet been published (or scraped)
+  - `500` if this crappy code messed up
+  - `200` with a json summary of the cases for that day if successful, e.g.
+      ```json
+      {"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0}
+      ```
+
 - **Total Cases Summary** [get]
 
   `/api/v1/summary`

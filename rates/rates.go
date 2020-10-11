@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	endpoint     string = "https://portal.lancaster.ac.uk/intranet/api/content/cms/coronavirus/covid-19-statistics"
+	endpoint string = "https://portal.lancaster.ac.uk/intranet/api/content/cms/coronavirus/covid-19-statistics"
+	//DatabasePath is file path for sqlite db
 	DatabasePath string = "./database/cases.db"
 )
 

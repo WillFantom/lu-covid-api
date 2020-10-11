@@ -47,6 +47,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", redirect)
 	router.HandleFunc(apiBase+"today", api.CasesToday)
+	router.HandleFunc(apiBase+"day", api.CasesForDay)
 	router.HandleFunc(apiBase+"summary", api.Summary)
 	router.HandleFunc(apiBase+"raw", api.Raw)
 	log.Debugln("💬 running api...")
