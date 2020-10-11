@@ -176,18 +176,3 @@ func UpdateRate(path string, date time.Time, staff uint64, campus uint64, city u
 func dateAdjust(date time.Time) time.Time {
 	return date.Add(time.Hour * 24)
 }
-
-// FillMissedData adds in any missed days worth of rates
-// The site only shows the past 7 days, this began at 9 days...
-func fillMissedData(path string) error {
-	log.Debugln("💬 adding in missed days (left the site prior to this app")
-	first := time.Date(2020, time.Month(10), 1, 0, 0, 0, 0, time.UTC)
-	if err := InsertNewRate(path, first.Format(time.RFC3339), 1, 2, 0); err != nil {
-		return err
-	}
-	second := time.Date(2020, time.Month(10), 2, 0, 0, 0, 0, time.UTC)
-	if err := InsertNewRate(path, second.Format(time.RFC3339), 4, 2, 0); err != nil {
-		return err
-	}
-	return nil
-}
