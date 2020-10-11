@@ -13,12 +13,10 @@ import (
 
 const (
 	endpoint     string = "https://portal.lancaster.ac.uk/intranet/api/content/cms/coronavirus/covid-19-statistics"
-	databasePath string = "./db/cases.db"
+	DatabasePath string = "./db/cases.db"
 )
 
 var (
-	//StartDate is the first date that any data was made avaliable
-	StartDate   time.Time = time.Date(2020, time.Month(10), 1, 0, 0, 0, 0, time.UTC)
 	currentData []Rate
 )
 
@@ -59,18 +57,18 @@ func Scrape() error {
 func WriteRates(updateExisting bool) error {
 
 	for _, rate := range currentData {
-		currData, err := db.FetchRates(databasePath, rate.Date, rate.Date)
+		currData, err := db.FetchRates(DatabasePath, rate.Date, rate.Date)
 		if err != nil {
 			return err
 		}
 		if len(*currData) > 0 && !updateExisting {
 			continue
 		} else if len(*currData) > 0 && updateExisting {
-			if err := db.UpdateRate(databasePath, rate.Date, rate.Staff, rate.CampusStudents, rate.CityStudents); err != nil {
+			if err := db.UpdateRate(DatabasePath, rate.Date, rate.Staff, rate.CampusStudents, rate.CityStudents); err != nil {
 				return err
 			}
 		} else {
-			if err := db.InsertNewRate(databasePath, rate.Date.Format(time.RFC3339), rate.CampusStudents, rate.CityStudents, rate.Staff); err != nil {
+			if err := db.InsertNewRate(DatabasePath, rate.Date.Format(time.RFC3339), rate.CampusStudents, rate.CityStudents, rate.Staff); err != nil {
 				return err
 			}
 		}
@@ -99,7 +97,7 @@ func Today() (*db.Rate, error) {
 
 // ForDateRange returns the given rates a range of days.
 func ForDateRange(from time.Time, to time.Time) (*[]db.Rate, error) {
-	rates, err := db.FetchRates(databasePath, from, to)
+	rates, err := db.FetchRates(DatabasePath, from, to)
 	if err != nil {
 		return nil, err
 	}

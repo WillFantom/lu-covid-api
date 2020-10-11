@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" //sqlite 3 driver
 	log "github.com/sirupsen/logrus"
 )
 
-// Get a connection to the db (new if required)
+// Check gets a connection to the db (new if required)
 func Check(dbPath string) error {
 	if !dbExists(dbPath) {
 		log.Debugln("💬 db does not exist...")
@@ -58,12 +58,36 @@ func dbCreate(path string) error {
 		return err
 	}
 
-	if err := fillMissedData(path); err != nil {
-		log.Errorln("🆘 failed to add missed days to db")
-		return err
-	}
+	// if err := fillMissedData(path); err != nil {
+	// 	log.Errorln("🆘 failed to add missed days to db")
+	// 	return err
+	// }
 
 	return nil
+}
+
+func GetStartDate(path string) (*time.Time, error) {
+	var rates []Rate
+
+	if err := Check(path); err != nil {
+		return nil, err
+	}
+	database, err := sqlx.Open("sqlite3", path)
+	if err != nil {
+		log.Errorln("⚠️ failed to open database")
+		return nil, err
+	}
+	defer database.Close()
+	statement := fmt.Sprintf("SELECT * FROM rates ORDER BY date ASC LIMIT 1")
+	if err := database.Select(&rates, statement); err != nil {
+		log.Errorln("⚠️ could not query the rates table")
+		return nil, err
+	}
+	if len(rates) == 0 {
+		return nil, fmt.Errorf("no records found")
+	}
+
+	return &rates[0].Date, nil
 }
 
 func InsertNewRate(path string, date string, campus uint64, city uint64, staff uint64) error {
@@ -104,7 +128,7 @@ func FetchRates(path string, from time.Time, to time.Time) (*[]Rate, error) {
 		return nil, err
 	}
 	defer database.Close()
-	statement := fmt.Sprintf("SELECT * FROM rates WHERE date BETWEEN date('%s') AND date('%s')", from.Format(time.RFC3339), to.Format(time.RFC3339))
+	statement := fmt.Sprintf("SELECT * FROM rates WHERE date BETWEEN date('%s') AND date('%s') ORDER BY date ASC", from.Format(time.RFC3339), to.Format(time.RFC3339))
 	if err := database.Select(&rates, statement); err != nil {
 		log.Errorln("⚠️ could not query the rates table")
 		return nil, err
