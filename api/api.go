@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -19,6 +20,7 @@ func API(router *mux.Router) {
 	router.HandleFunc(apiBase+"today", today)
 	router.HandleFunc(apiBase+"recent", recent)
 	router.HandleFunc(apiBase+"day", forDay)
+	router.HandleFunc(apiBase+"totals", totals)
 }
 
 func today(w http.ResponseWriter, r *http.Request) {
@@ -79,31 +81,45 @@ func forDay(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(jsonData)
 	return
-
 }
 
-// func CasesForDay(w http.ResponseWriter, r *http.Request) {
-// 	log.Debugln("✉️ getting rates for given date")
-// 	date, err := dateFromQuery(r.URL.Query())
-// 	if err != nil {
-// 		http.Error(w, "Expected Format: day=01&month=01&year=1970", 500)
-// 		return
-// 	}
-// 	rates, err := rates.ForDateRange(*date, *date)
-// 	if err != nil {
-// 		http.Error(w, "information reqest failed", 500)
-// 	} else if rates == nil {
-// 		http.Error(w, "todays information has not yet been published", 204)
-// 	} else {
-// 		w.Header().Set("Content-Type", "application/json")
-// 		jsonData, err := json.Marshal((*rates)[0])
-// 		if err != nil {
-// 			http.Error(w, "data returned can not be marshalled", 500)
-// 			return
-// 		}
-// 		w.Write(jsonData)
-// 	}
-// }
+func totals(w http.ResponseWriter, r *http.Request) {
+	log.Debugln("✉️ getting totla rates")
+	earliest, err := db.Earliest()
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	recent, err := db.MostRecent()
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	rates, err := db.FetchInRange(earliest.Date, recent.Date)
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	var staff, students uint64
+	for _, rate := range *rates {
+		staff += (rate.Staff)
+		students += (rate.Campus + rate.City)
+	}
+	data := map[string]interface{}{
+		"starting date": earliest.Date.Format(time.RFC1123),
+		"ending date":   recent.Date.Format(time.RFC1123),
+		"staff total":   staff,
+		"student total": students,
+		"total cases":   students + staff,
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, "server data can not be marshalled", 500)
+		return
+	}
+	w.Write(jsonData)
+	return
+}
 
 // func Raw(w http.ResponseWriter, r *http.Request) {
 // 	log.Debugln("✉️ getting raw rates")

@@ -50,16 +50,22 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
       {"Date":"2020-10-02T00:00:00Z","Campus":4,"City":2,"Staff":0}
       ```
 
-- **Total Cases Summary** [get]
+- **Total Cases** [get]
 
-  `/api/v1/summary`
+  `/api/v1/totals`
 
   Will return:
   - `204` if data has not yet been published (or scraped)
   - `500` if this crappy code messed up
   - `200` with a json summary of the total cases if successful, e.g.
       ```json
-      {"Staff Cases":5,"Student Cases":117,"Total Cases":122}
+      {
+        "starting date": "Thu, 01 Oct 2020 00:00:00 UTC",
+        "ending date": "Thu, 08 Oct 2020 00:00:00 UTC",
+        "staff total": 5,
+        "student total": 117,
+        "total cases": 122
+      }
       ```
 
 - **Complete Raw** [get]
