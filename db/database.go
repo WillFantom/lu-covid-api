@@ -123,7 +123,7 @@ func FetchRates(path string, from time.Time, to time.Time) (*[]Rate, error) {
 		return nil, err
 	}
 	defer database.Close()
-	statement := fmt.Sprintf("SELECT * FROM rates WHERE date BETWEEN date('%s') AND date('%s') ORDER BY date ASC", from.Format(time.RFC3339), to.Format(time.RFC3339))
+	statement := fmt.Sprintf("SELECT date, campus, city, staff FROM rates WHERE date BETWEEN date('%s') AND date('%s') ORDER BY date ASC", from.Format(time.RFC3339), to.Format(time.RFC3339))
 	if err := database.Select(&rates, statement); err != nil {
 		log.Errorln("⚠️ could not query the rates table")
 		return nil, err
