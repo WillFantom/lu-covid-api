@@ -134,6 +134,26 @@ func DeleteRates(path string, from time.Time, to time.Time) error {
 	return nil
 }
 
+func UpdateRate(path string, date time.Time, staff uint64, campus uint64, city uint64) error {
+
+	if err := Check(path); err != nil {
+		return err
+	}
+	database, err := sqlx.Open("sqlite3", path)
+	if err != nil {
+		log.Errorln("⚠️ failed to open database")
+		return err
+	}
+	defer database.Close()
+	statement := fmt.Sprintf("UPDATE rates SET staff = %d, city = %d, campus = %d WHERE date = date('%s') ;", staff, city, campus, date)
+	if _, err := database.Exec(statement); err != nil {
+		log.Errorln("⚠️ could not query the rates table")
+		return err
+	}
+
+	return nil
+}
+
 func dateAdjust(date time.Time) time.Time {
 	return date.Add(time.Hour * 24)
 }
