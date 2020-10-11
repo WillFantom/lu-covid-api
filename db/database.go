@@ -58,11 +58,6 @@ func dbCreate(path string) error {
 		return err
 	}
 
-	// if err := fillMissedData(path); err != nil {
-	// 	log.Errorln("🆘 failed to add missed days to db")
-	// 	return err
-	// }
-
 	return nil
 }
 
