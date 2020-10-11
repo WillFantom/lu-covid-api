@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/willfantom/lu-covid-api/db"
 )
 
 const expectedFormat = "2006-Jan-2"
@@ -29,4 +31,20 @@ func dateFromQuery(values url.Values) (time.Time, error) {
 		return time.Time{}, errors.New(expectedFormat)
 	}
 	return date, nil
+}
+
+func getEarliestDate() (time.Time, error) {
+	earliest, err := db.Earliest()
+	if err != nil {
+		return time.Time{}, err
+	}
+	return earliest.Date, nil
+}
+
+func getRecentDate() (time.Time, error) {
+	recent, err := db.MostRecent()
+	if err != nil {
+		return time.Time{}, err
+	}
+	return recent.Date, nil
 }

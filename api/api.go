@@ -21,6 +21,7 @@ func API(router *mux.Router) {
 	router.HandleFunc(apiBase+"recent", recent)
 	router.HandleFunc(apiBase+"day", forDay)
 	router.HandleFunc(apiBase+"totals", totals)
+	router.HandleFunc(apiBase+"raw", raw)
 }
 
 func today(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +85,7 @@ func forDay(w http.ResponseWriter, r *http.Request) {
 }
 
 func totals(w http.ResponseWriter, r *http.Request) {
-	log.Debugln("✉️ getting totla rates")
+	log.Debugln("✉️ getting total rates")
 	earliest, err := db.Earliest()
 	if err != nil {
 		http.Error(w, "server encountered an issue", 500)
@@ -112,6 +113,7 @@ func totals(w http.ResponseWriter, r *http.Request) {
 		"student total": students,
 		"total cases":   students + staff,
 	}
+	w.Header().Set("Content-Type", "application/json")
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, "server data can not be marshalled", 500)
@@ -121,58 +123,25 @@ func totals(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// func Raw(w http.ResponseWriter, r *http.Request) {
-// 	log.Debugln("✉️ getting raw rates")
-// 	startDate, err := db.GetStartDate(rates.DatabasePath)
-// 	if err != nil {
-// 		http.Error(w, "no data could be found in database", 500)
-// 	}
-// 	rates, err := rates.ForDateRange(*startDate, time.Now())
-// 	if err != nil {
-// 		http.Error(w, "information reqest failed", 500)
-// 	} else if rates == nil {
-// 		http.Error(w, "todays information has not yet been published", 204)
-// 	} else {
-// 		w.Header().Set("Content-Type", "application/json")
-// 		jsonData, err := json.Marshal(rates)
-// 		if err != nil {
-// 			http.Error(w, "data returned can not be marshalled", 500)
-// 			return
-// 		}
-// 		w.Write(jsonData)
-// 	}
-// }
-
-// func Summary(w http.ResponseWriter, r *http.Request) {
-// 	log.Debugln("✉️ getting summary")
-// 	startDate, err := db.GetStartDate(rates.DatabasePath)
-// 	if err != nil {
-// 		http.Error(w, "no data could be found in database", 500)
-// 	}
-// 	log.Infoln(startDate)
-// 	rates, err := rates.ForDateRange(*startDate, time.Now())
-// 	if err != nil {
-// 		http.Error(w, "information reqest failed", 500)
-// 	} else if rates == nil {
-// 		http.Error(w, "todays information has not yet been published", 204)
-// 	} else {
-// 		w.Header().Set("Content-Type", "application/json")
-// 		var total, staff, students uint64
-// 		for _, rate := range *rates {
-// 			staff += (rate.Staff)
-// 			students += (rate.Campus + rate.City)
-// 		}
-// 		total = students + staff
-// 		data := map[string]uint64{
-// 			"Total Cases":   (total),
-// 			"Student Cases": (students),
-// 			"Staff Cases":   (staff),
-// 		}
-// 		jsonData, err := json.Marshal(data)
-// 		if err != nil {
-// 			http.Error(w, "data returned can not be marshalled", 500)
-// 			return
-// 		}
-// 		w.Write(jsonData)
-// 	}
-// }
+func raw(w http.ResponseWriter, r *http.Request) {
+	log.Debugln("✉️ getting raw rates")
+	earilestDate, errA := getEarliestDate()
+	recentDate, errB := getRecentDate()
+	if errA != nil || errB != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	rates, err := db.FetchInRange(earilestDate, recentDate)
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	jsonData, err := json.Marshal(rates)
+	if err != nil {
+		http.Error(w, "server data can not be marshalled", 500)
+		return
+	}
+	w.Write(jsonData)
+	return
+}
