@@ -9,6 +9,7 @@ WORKDIR /app
 RUN CGO_ENABLED=1 go build -o lu-covid-api .
 
 FROM alpine
+COPY --from=builder /app/database /app/database
 COPY --from=builder /app/lu-covid-api /app/
 EXPOSE 8080
 WORKDIR /app
