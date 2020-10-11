@@ -63,15 +63,18 @@ func WriteRates(updateExisting bool) error {
 		if err != nil {
 			return err
 		}
-		if currData != nil && !updateExisting {
+		if len(*currData) > 0 && !updateExisting {
 			continue
+		} else if len(*currData) > 0 && updateExisting {
+			if err := db.UpdateRate(databasePath, rate.Date, rate.Staff, rate.CampusStudents, rate.CityStudents); err != nil {
+				return err
+			}
+		} else {
+			if err := db.InsertNewRate(databasePath, rate.Date.Format(time.RFC3339), rate.CampusStudents, rate.CityStudents, rate.Staff); err != nil {
+				return err
+			}
 		}
-		if err := db.DeleteRates(databasePath, rate.Date, rate.Date); err != nil {
-			return err
-		}
-		if err := db.InsertNewRate(databasePath, rate.Date.Format(time.RFC3339), rate.CampusStudents, rate.CityStudents, rate.Staff); err != nil {
-			return err
-		}
+
 	}
 
 	return nil
