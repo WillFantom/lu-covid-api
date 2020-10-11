@@ -1,0 +1,34 @@
+name: Nightly DB Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 20 * * *'
+
+jobs:
+  nightly:
+    name: Scheduled DB Update
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Install Go
+        uses: actions/setup-go@v2
+      - 
+        name: Build Program
+        run: CGO_ENABLED=1 go build -o lu-covid-api .
+      - 
+        name: Update Database
+        run: ./lu-covid-api -update-db
+      - 
+        name: Commit Database Changes
+        uses: github-actions-x/commit@v2.7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-branch: main
+          commit-message: "Update database [automated 🚀]"
+          files: database/cases.db
+          name: Automated
+          email: actions@users.noreply.github.com
