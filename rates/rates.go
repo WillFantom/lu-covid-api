@@ -13,7 +13,7 @@ import (
 
 const (
 	endpoint     string = "https://portal.lancaster.ac.uk/intranet/api/content/cms/coronavirus/covid-19-statistics"
-	DatabasePath string = "./db/cases.db"
+	DatabasePath string = "./database/cases.db"
 )
 
 var (
