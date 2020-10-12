@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -21,6 +22,7 @@ func API(router *mux.Router) {
 	router.HandleFunc(apiBase+"recent", recent)
 	router.HandleFunc(apiBase+"day", forDay)
 	router.HandleFunc(apiBase+"totals", totals)
+	router.HandleFunc(apiBase+"average", average)
 	router.HandleFunc(apiBase+"raw", raw)
 }
 
@@ -112,6 +114,58 @@ func totals(w http.ResponseWriter, r *http.Request) {
 		"staff total":   staff,
 		"student total": students,
 		"total cases":   students + staff,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, "server data can not be marshalled", 500)
+		return
+	}
+	w.Write(jsonData)
+	return
+}
+
+func average(w http.ResponseWriter, r *http.Request) {
+	log.Debugln("✉️ getting average rates")
+	days, hasDays := r.URL.Query()["days"]
+	recentDate, err := GetRecentDate()
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	var earliestDate time.Time
+	if !hasDays {
+		earliestDate, err = GetEarliestDate()
+		if err != nil {
+			http.Error(w, "server encountered an issue", 500)
+			return
+		}
+	} else {
+		daysInt, err := strconv.Atoi(days[0])
+		if err != nil {
+			http.Error(w, "days must be an number", 400)
+			return
+		}
+		earliestDate = recentDate.Add(-time.Hour * time.Duration(24*daysInt))
+	}
+	rates, err := db.FetchInRange(earliestDate, recentDate)
+	if err != nil {
+		http.Error(w, "server encountered an issue", 500)
+		return
+	}
+	if len(*rates) <= 0 {
+		http.Error(w, "need at least 1 datapoint", 500)
+		return
+	}
+	var average uint64
+	for _, rate := range *rates {
+		average += (rate.Staff + rate.Campus + rate.City)
+	}
+	average = average / uint64(len(*rates))
+	data := map[string]interface{}{
+		"starting date": earliestDate.Format(time.RFC1123),
+		"ending date":   recentDate.Format(time.RFC1123),
+		"average cases": average,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	jsonData, err := json.Marshal(data)
