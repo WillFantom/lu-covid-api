@@ -72,6 +72,26 @@ If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might 
       }
       ```
 
+- **Average Daily Cases** [get]
+
+  `/api/v1/average`
+
+  Optional Parameters:
+    - `days`: e.g. `7` | if not provided, will average across the whole dataset
+    > (example returns average over the 7 most recently provided daily data)
+
+  Will return:
+  - `204` if data has not yet been published (or scraped)
+  - `500` if this crappy code messed up
+  - `200` with a json summary of the total cases if successful, e.g.
+      ```json
+      {
+        "average cases": 23,
+        "ending date": "Sun, 11 Oct 2020 00:00:00 UTC",
+        "starting date": "Sun, 04 Oct 2020 00:00:00 UTC"
+      }
+      ```
+
 - **Complete Raw** [get]
 
   `/api/v1/raw`
