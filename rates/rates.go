@@ -1,7 +1,6 @@
 package rates
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -43,10 +42,11 @@ func Scrape(write bool, updateExisting bool) error {
 		return fmt.Errorf("0 rates were parsed from table (should be 7)")
 	}
 
-	log.Debugln("💬 found %d rates via scrape", len(rates))
+	log.Debugln("💬 found rates via scrape, count:", len(rates))
 
 	if write {
 		if err := writeRates(updateExisting, rates); err != nil {
+			log.Debugln("💬⚠️ ", err.Error())
 			return err
 		}
 	}
@@ -71,7 +71,9 @@ func writeRates(updateExisting bool, data []db.Rate) error {
 				return err
 			}
 		} else if len(*currData) <= 0 {
-			return errors.New("could not add an empty data set")
+			if err := db.AddRate(rate.Date, rate.Staff, rate.City, rate.Campus); err != nil {
+				return err
+			}
 		}
 	}
 
