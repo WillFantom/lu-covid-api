@@ -3,7 +3,7 @@ name: DB Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 6,12,18 * * *'
+    - cron: '0 8-20 * * *'
 
 jobs:
   database-update:
@@ -39,4 +39,6 @@ jobs:
           git config user.email actions@users.noreply.github.com
           git add database/cases.db
           git commit -m "Update database [automated 🚀]" || exit 0
+          curl "${{ secrets.GOTIFY_API }}/message?token=${{ secrets.GOTIFY_TOKEN }}" \
+            -F "title=DB Updated" -F "priority=2" -F "message=LU Covid19 db has received an update"
           git push
