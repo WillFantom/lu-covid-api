@@ -103,17 +103,20 @@ func totals(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server encountered an issue", 500)
 		return
 	}
-	var staff, students uint64
+	var staff, campus, city uint64
 	for _, rate := range *rates {
-		staff += (rate.Staff)
-		students += (rate.Campus + rate.City)
+		staff += rate.Staff
+		campus += rate.Campus
+		city += rate.City
 	}
 	data := map[string]interface{}{
-		"starting date": earliest.Date.Format(time.RFC1123),
-		"ending date":   recent.Date.Format(time.RFC1123),
-		"staff total":   staff,
-		"student total": students,
-		"total cases":   students + staff,
+		"starting date":    earliest.Date.Format(time.RFC1123),
+		"ending date":      recent.Date.Format(time.RFC1123),
+		"staff total":      staff,
+		"student total":    campus + city,
+		"campus students:": campus,
+		"city students":    city,
+		"total cases":      staff + campus + city,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	jsonData, err := json.Marshal(data)
