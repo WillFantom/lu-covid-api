@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	apiBase string = "/api/v1/"
+	apiBase string = "/v1"
 )
 
 func API(router *mux.Router) {
-	router.HandleFunc(apiBase+"today", today)
-	router.HandleFunc(apiBase+"recent", recent)
-	router.HandleFunc(apiBase+"day", forDay)
-	router.HandleFunc(apiBase+"totals", totals)
-	router.HandleFunc(apiBase+"average", average)
-	router.HandleFunc(apiBase+"raw", raw)
+	router.HandleFunc(apiBase+"/today", today)
+	router.HandleFunc(apiBase+"/recent", recent)
+	router.HandleFunc(apiBase+"/day", forDay)
+	router.HandleFunc(apiBase+"/totals", totals)
+	router.HandleFunc(apiBase+"/average", average)
+	router.HandleFunc(apiBase+"/raw", raw)
 }
 
 func today(w http.ResponseWriter, r *http.Request) {

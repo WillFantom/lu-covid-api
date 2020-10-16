@@ -9,6 +9,28 @@ This API exists only to allow for easier manipulation of the data.
 
 If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might be because you are using CloudFlare DNS.
 
+### Graphs
+
+This simply returns some poorly formatted ascii graphs for now...
+
+- **Total Cases**
+
+  `/graphs/total`
+
+  Shows increase in total cases across all available data.
+
+- **Student Cases**
+
+  `/graphs/students`
+
+  Shows increase in total student cases (campus and city) across all available data points.
+
+- **Staff Cases**
+
+  `/graphs/staff`
+
+  Shows increase in total staff cases across all available data points.
+
 ### API
 
 - **Cases Today** [get]

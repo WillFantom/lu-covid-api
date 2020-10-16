@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/willfantom/lu-covid-api/db"
+	"github.com/willfantom/lu-covid-api/graphs"
 
 	"github.com/willfantom/lu-covid-api/telegram"
 
@@ -55,7 +56,10 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", redirect)
-	api.API(router)
+
+	api.API(router.PathPrefix("/api").Subrouter())
+	graphs.API(router.PathPrefix("/graphs").Subrouter())
+
 	log.Debugln("💬 running api...")
 	log.Fatal(http.ListenAndServe(":8080", router))
 
