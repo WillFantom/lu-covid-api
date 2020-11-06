@@ -5,6 +5,25 @@ To see the statistics, see [here](https://portal.lancaster.ac.uk/intranet/cms/co
 
 This API exists only to allow for easier manipulation of the data.
 
+## Examples
+
+- Get graph of all cases since 01/Oct/2020 (with `lolcat` for colors):
+  ```bash
+  $ curl "https://lucovid.willfantom.dev/graphs/total" | lolcat
+  ```
+  ![totals graph](./total-cases-graph.png)
+
+- Get average daily cases for the past week as JSON (with `jq` for formatting):
+  ```bash
+  $ curl "https://lucovid.willfantom.dev/api/v1/average?days=7" | jq
+
+  {
+    "average cases": 22,
+    "ending date": "Thu, 15 Oct 2020 00:00:00 UTC",
+    "starting date": "Thu, 08 Oct 2020 00:00:00 UTC"
+  }
+  ```
+
 ### ⚠️ Warning
 
 If you can't reach `portal.lancaster.ac.uk`, you can't host the API. This might be because you are using CloudFlare DNS.
