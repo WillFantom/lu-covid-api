@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -64,6 +65,8 @@ func getRates(htmlContent *goquery.Document) ([]db.Rate, error) {
 				parsedDate, err := parseDate(text)
 				if err == nil {
 					rate.Date = parsedDate
+				} else {
+					return rates, err
 				}
 			} else if n == 1 {
 				rate.Campus, _ = strconv.ParseUint(text, 10, 32)
@@ -82,7 +85,12 @@ func getRates(htmlContent *goquery.Document) ([]db.Rate, error) {
 
 func parseDate(dateStr string) (time.Time, error) {
 	var date time.Time
-	splitDateStr := strings.Split(dateStr, " ")
+	re := regexp.MustCompile("[[:^ascii:]]")
+	formattedDateStr := re.ReplaceAllLiteralString(dateStr, " ")
+	splitDateStr := strings.Split(formattedDateStr, " ")
+	if len(splitDateStr) < 2 {
+		return date, fmt.Errorf("date could not be parsed")
+	}
 	formattedStr := "2020-" + splitDateStr[2][0:3] + "-" + splitDateStr[1]
 	date, err := time.Parse(shortForm, formattedStr)
 	if err != nil {
